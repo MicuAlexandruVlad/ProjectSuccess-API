@@ -1,5 +1,6 @@
 
 const neo4j = require('neo4j-driver')
+const dotenv = require('dotenv')
 const {
     dbUserRole,
     preferredLocationDifferentCountry,
@@ -11,6 +12,8 @@ const {
 } = require('../../../utils/Constants')
 
 const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'testpass'))
+
+dotenv.config()
 
 module.exports = {
     createUser: async (ctx) => {

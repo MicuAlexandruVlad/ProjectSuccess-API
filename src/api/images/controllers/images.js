@@ -7,6 +7,8 @@ const bucketName = 'genesys-file-storage'
 const accessKeyId = process.env.S3_ACCESS_KEY_ID
 const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY
 
+dotenv.config()
+
 const s3 = new aws.S3({
     accessKeyId,
     secretAccessKey,
