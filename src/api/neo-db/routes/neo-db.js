@@ -53,6 +53,10 @@ module.exports = {
             method: 'POST',
             path: '/neo-db/delete-user',
             handler: 'neo-db.deleteUserData'
+        }, {
+            method: 'GET',
+            path: '/neo-db/keep-alive',
+            handler: 'neo-db.keepAlive'
         }
     ]
 }
