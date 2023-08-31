@@ -57,6 +57,10 @@ module.exports = {
             method: 'GET',
             path: '/neo-db/keep-alive',
             handler: 'neo-db.keepAlive'
+        }, {
+            method: 'GET',
+            path: '/neo-db/get-all',
+            handler: 'neo-db.getAll'
         }
     ]
 }
