@@ -11,7 +11,7 @@ const {
 } = require('../../../utils/Constants')
 
 // replace with prod pass -> adminadmin
-const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'adminadmin'))
+const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'testpass'))
 
 module.exports = {
     createUser: async (ctx) => {
@@ -257,6 +257,12 @@ module.exports = {
                     AND all_users.lookingForChat = true
                     AND all_users.country = $country
                     AND (
+                        all_users.birthdate >= $oldestAge
+                        AND all_users.birthdate <= $youngestAge
+                        AND all_users.birthdate - all_users.preferredAgeGap * $yearInMs <= $requestingUserAge
+                        AND all_users.birthdate + all_users.preferredAgeGap * $yearInMs >= $requestingUserAge
+                    )
+                    AND (
                         all_users.preferredLocation = "Same Country"
                         OR (
                             all_users.preferredLocation = "Same City"
@@ -271,7 +277,7 @@ module.exports = {
                     ORDER BY all_users.rating DESC
                     LIMIT 1
                 `
-            } else {
+            } else if (preferredLocation === preferredLocationDifferentCountry) {
                 query = `
                     MATCH (user: ${dbUserRole})
                     WHERE ID(user) = $requestingUserDbId
@@ -292,6 +298,46 @@ module.exports = {
                     AND (
                         all_users.preferredLocation = "Different Country"
                         OR all_users.preferredLocation = "No Preference"
+                    )
+                    AND ANY(lang in all_users.languages WHERE lang in $preferredLanguages)
+                    AND ANY(lang in all_users.preferredLanguages WHERE lang in $spokenLanguages)
+                    RETURN all_users
+                    ORDER BY all_users.rating DESC
+                    LIMIT 1
+                `
+            } else {
+                query = `
+                    MATCH (user: ${dbUserRole})
+                    WHERE ID(user) = $requestingUserDbId
+                    WITH user
+                    MATCH(all_users: ${dbUserRole})
+                    WHERE ID(all_users) <> $requestingUserDbId
+                    AND NOT (user)-[:${R_CONNECTED}]-(all_users)
+                    AND NOT (user)-[:${R_BLOCKED}]-(all_users)
+                    AND NOT (user)-[:${R_REPORTED}]-(all_users)
+                    AND all_users.lookingForChat = true
+                    AND (
+                        all_users.birthdate >= $oldestAge
+                        AND all_users.birthdate <= $youngestAge
+                        AND all_users.birthdate - all_users.preferredAgeGap * $yearInMs <= $requestingUserAge
+                        AND all_users.birthdate + all_users.preferredAgeGap * $yearInMs >= $requestingUserAge
+                    )
+                    AND (
+                        all_users.preferredLocation = "No Preference"
+                        OR (
+                            all_users.preferredLocation = "Different Country"
+                            AND all_users.country <> $country
+                        )
+                        OR (
+                            all_users.preferredLocation = "Same Country"
+                            AND all_users.country = $country
+                        )
+                        OR (
+                            all_users.preferredLocation = "Same City"
+                            AND all_users.country = $country
+                            AND all_users.state = $state
+                            AND all_users.city = $city
+                        )
                     )
                     AND ANY(lang in all_users.languages WHERE lang in $preferredLanguages)
                     AND ANY(lang in all_users.preferredLanguages WHERE lang in $spokenLanguages)
