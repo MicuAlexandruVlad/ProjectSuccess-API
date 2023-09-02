@@ -11,7 +11,7 @@ const {
 } = require('../../../utils/Constants')
 
 // replace with prod pass -> adminadmin
-const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'testpass'))
+const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'adminadmin'))
 
 module.exports = {
     createUser: async (ctx) => {
