@@ -26,7 +26,7 @@ module.exports = {
 
         const session = driver.session()
         const result = await session.run(
-            `Create (n:USER {
+            `Create (n:${dbUserRole} {
                 email: $email, firstName: $firstName, lastName: $lastName, bio: $bio, languages: $languages,
                 birthdate: $birthdate, preferredLanguages: $preferredLanguages, gender: $gender,
                 city: $city, country: $country, state: $state, preferredLocation: $preferredLocation, photos: $photos,
